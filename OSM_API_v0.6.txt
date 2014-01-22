@@ -1,0 +1,1594 @@
+                                    API v0.6
+
+   From OpenStreetMap Wiki
+
+   API v0.6 is the current version of the OSM Editing API deployed 17-21
+   April 2009.
+
+   This page was updated in March 2012 to reflect small changes applied since
+   then, and in April 2013 after the addition of the Map Notes API.
+
+Contents                                                                               
+                                                                                       
+  * 1 General information                                                              
+       * 1.1 URL + authentication                                                      
+       * 1.2 Elements                                                                  
+       * 1.3 Changesets                                                                
+       * 1.4 Tags                                                                      
+       * 1.5 Reliably identifying users                                                
+       * 1.6 Version numbers/optimistic locking                                        
+       * 1.7 XML Format                                                                
+       * 1.8 Faking the correct HTTP methods                                           
+  * 2 API calls                                                                        
+       * 2.1 Miscellaneous                                                             
+            * 2.1.1 Capabilities: GET /api/capabilities                                
+                 * 2.1.1.1 Response                                                    
+                 * 2.1.1.2 Notes                                                       
+            * 2.1.2 Retrieving map data by bounding box: GET /api/0.6/map              
+                 * 2.1.2.1 Error codes                                                 
+            * 2.1.3 Retrieving permissions: GET /api/0.6/permissions                   
+                 * 2.1.3.1 Response                                                    
+                 * 2.1.3.2 Notes                                                       
+       * 2.2 Changesets                                                                
+            * 2.2.1 Bounding box computation                                           
+            * 2.2.2 Create: PUT /api/0.6/changeset/create                              
+                 * 2.2.2.1 Response                                                    
+                 * 2.2.2.2 Error codes                                                 
+                 * 2.2.2.3 Notes                                                       
+            * 2.2.3 Read: GET /api/0.6/changeset/#id                                   
+                 * 2.2.3.1 Parameters                                                  
+                 * 2.2.3.2 Response                                                    
+                 * 2.2.3.3 Error codes                                                 
+                 * 2.2.3.4 Notes                                                       
+            * 2.2.4 Update: PUT /api/0.6/changeset/#id                                 
+                 * 2.2.4.1 Parameters                                                  
+                 * 2.2.4.2 Response                                                    
+                 * 2.2.4.3 Error codes                                                 
+                 * 2.2.4.4 Notes                                                       
+            * 2.2.5 Close: PUT /api/0.6/changeset/#id/close                            
+                 * 2.2.5.1 Parameters                                                  
+                 * 2.2.5.2 Response                                                    
+                 * 2.2.5.3 Error codes                                                 
+            * 2.2.6 Download: GET /api/0.6/changeset/#id/download                      
+                 * 2.2.6.1 Parameters                                                  
+                 * 2.2.6.2 Response                                                    
+                 * 2.2.6.3 Error codes                                                 
+                 * 2.2.6.4 Notes                                                       
+            * 2.2.7 Expand Bounding Box: POST /api/0.6/changeset/#id/expand_bbox       
+                 * 2.2.7.1 Parameters                                                  
+                 * 2.2.7.2 Response                                                    
+                 * 2.2.7.3 Error codes                                                 
+                 * 2.2.7.4 Notes                                                       
+            * 2.2.8 Query: GET /api/0.6/changesets                                     
+                 * 2.2.8.1 Parameters                                                  
+                 * 2.2.8.2 Response                                                    
+                 * 2.2.8.3 Error codes                                                 
+                 * 2.2.8.4 Notes                                                       
+            * 2.2.9 Diff upload: POST /api/0.6/changeset/#id/upload                    
+                 * 2.2.9.1 Parameters                                                  
+                 * 2.2.9.2 Response                                                    
+                 * 2.2.9.3 Error codes                                                 
+                 * 2.2.9.4 Notes                                                       
+            * 2.2.10 Changeset summary                                                 
+       * 2.3 Elements                                                                  
+            * 2.3.1 Create: PUT /api/0.6/[node|way|relation]/create                    
+                 * 2.3.1.1 Response                                                    
+                 * 2.3.1.2 Error codes                                                 
+                 * 2.3.1.3 Notes                                                       
+            * 2.3.2 Read: GET /api/0.6/[node|way|relation]/#id                         
+                 * 2.3.2.1 Response                                                    
+                 * 2.3.2.2 Error codes                                                 
+            * 2.3.3 Update: PUT /api/0.6/[node|way|relation]/#id                       
+                 * 2.3.3.1 Response                                                    
+                 * 2.3.3.2 Error codes                                                 
+                 * 2.3.3.3 Notes                                                       
+            * 2.3.4 Delete: DELETE /api/0.6/[node|way|relation]/#id                    
+                 * 2.3.4.1 Response                                                    
+                 * 2.3.4.2 Error codes                                                 
+                 * 2.3.4.3 Notes                                                       
+            * 2.3.5 History: GET /api/0.6/[node|way|relation]/#id/history              
+                 * 2.3.5.1 Error codes                                                 
+            * 2.3.6 Version: GET /api/0.6/[node|way|relation]/#id/#version             
+                 * 2.3.6.1 Error codes                                                 
+            * 2.3.7 Multi fetch: GET /api/0.6/[nodes|ways|relations]?#parameters       
+                 * 2.3.7.1 Parameters                                                  
+                 * 2.3.7.2 Error codes                                                 
+            * 2.3.8 Relations for element: GET                                         
+              /api/0.6/[node|way|relation]/#id/relations                               
+                 * 2.3.8.1 Notes                                                       
+            * 2.3.9 Ways for node: GET /api/0.6/node/#id/ways                          
+                 * 2.3.9.1 Notes                                                       
+            * 2.3.10 Full: GET /api/0.6/[way|relation]/#id/full                        
+                 * 2.3.10.1 Error codes                                                
+            * 2.3.11 Redaction: PUT                                                    
+              /api/0.6/[node|way|relation]/#id/#version/redact?redaction=#redaction_id 
+                 * 2.3.11.1 Notes                                                      
+       * 2.4 GPS traces                                                                
+            * 2.4.1 Retrieving GPS points                                              
+                 * 2.4.1.1 Examples                                                    
+            * 2.4.2 Uploading traces                                                   
+            * 2.4.3 Downloading trace metadata                                         
+       * 2.5 Methods for user data                                                     
+            * 2.5.1 Details of a user                                                  
+            * 2.5.2 Details of the logged-in user                                      
+            * 2.5.3 Preferences of the logged-in user                                  
+       * 2.6 Map Notes API                                                             
+            * 2.6.1 Retrieving bug data by bounding box: GET /api/0.6/notes            
+                 * 2.6.1.1 Error codes                                                 
+            * 2.6.2 Read: GET /api/0.6/notes/#id                                       
+                 * 2.6.2.1 Error codes                                                 
+            * 2.6.3 Create a new bug: Create: POST /api/0.6/notes                      
+                 * 2.6.3.1 Error codes                                                 
+            * 2.6.4 Create a new comment: Create: POST /api/0.6/notes/#id/comment      
+                 * 2.6.4.1 Error codes                                                 
+            * 2.6.5 Close: PUT /api/0.6/note/#id/close                                 
+                 * 2.6.5.1 Error codes                                                 
+            * 2.6.6 Search for notes on text and comments: GET /api/0.6/notes/search   
+                 * 2.6.6.1 Error codes                                                 
+  * 3 When NOT to use the API                                                          
+  * 4 Further reading                                                                  
+
+                              General information
+
+   This Editing API is based on the ideas of the RESTful API. For more
+   information on RESTful APIs see wikipedia's Representational State
+   Transfer page.
+
+   The API is the server component to which REST requests are addressed. The
+   REST requests take the form of HTTP GET, PUT, POST, and DELETE messages.
+   Any payload is in XML form, using the MIME type "text/xml" and UTF-8
+   character encoding, and may be compressed on the HTTP layer if the client
+   indicates through the HTTP "Accept" header that it can handle compressed
+   messages.
+
+   Requests to modify the database are authorized using HTTP Basic
+   Authorization or OAuth. Read requests do not require authorization (except
+   user details).
+
+   Preliminary Full DTD (under construction and discussion).
+
+   Changes between API v0.5 and API v0.6
+
+URL + authentication
+
+   The API is currently accessible using the following URL:
+   http://api.openstreetmap.org/
+
+   When testing your software against the API you should consider using
+   http://api06.dev.openstreetmap.org/ instead of the live-api. Your account
+   for the live service is not in the same database, so you probably need a
+   new username and password for the test service; please visit that page in
+   a browser to sign up.
+
+   All of the calls to the API which update, create or delete data have to be
+   made by an authenticated and authorized user. Authentication works by
+   using HTTP Basic authentication using an user name and password or by
+   using OAuth.
+
+Elements
+
+   There are API calls to create, read, update and delete the three basic
+   elements that make up the map data for OpenStreetMap. They each return or
+   expect the data for the elements in a XML format.
+
+Changesets
+
+   Every modification of one or more of the elements has to reference an open
+   changeset.
+
+Tags
+
+   Every element and changeset may have any number of tags. A tag is a
+   Key-Value pair of Unicode strings of up to 255 full unicode characters
+   (not bytes) each.
+
+Reliably identifying users
+
+   The previous API v0.5 returned only the user display name. The user can
+   update this at any time and there is no history stored for display name
+   changes. This means there was no way to reliably identify which user made
+   a specific change. API v0.6 includes the numeric user ID of the account in
+   addition to the display name. E.g.,
+
+ <node id="68" ... user="fred" uid="123"/>
+
+   This still requires the user to have made his edits public. User ID for
+   users who have previously made anonymous changes will not be visible. In
+   accordance with a recommendation from the OpenStreetMap Foundation Board,
+   anonymous edits are no longer allowed.
+
+Version numbers/optimistic locking
+
+   The planet dump, diffs and the API calls for elements will return a
+   version attribute for each Node, Way and Relation.
+
+ <node id="68" ... version="12"/>
+
+   These version numbers are used for optimistic locking. To upload a new
+   version of an object, the client will need to provide the version of the
+   object it is modifying. If the version supplied is not the same as the
+   server's current version, an error will be returned (HTTP status code 409:
+   Conflict). This means that any client that is updating data will need to
+   save the version numbers of the original data. One element can be updated
+   multiple times during one changeset and its version number is increased
+   each time so there can be multiple history versions of a single element
+   for one changeset.
+
+   In addition, clients can now ask for specific versions of an element.
+
+   Version numbers will always begin at 1 and increase by 1 every time an
+   element is changed. Clients should not, however, rely on the increase by 1
+   when updating an element, but instead retrieve the new version number from
+   the server response.
+
+XML Format
+
+   Every XML response from the server is wrapped in an <osm> element unless
+   specified otherwise (e.g., for diff uploads, or changeset downloads). In
+   most of the later examples this wrapper is left out.
+
+ <osm version="0.6" generator="OpenStreetMap server">
+   ...
+   ...
+ </osm>
+
+   Every call to the API has to be wrapped in an <osm> element as well but
+   the version and generator attributes can be left out.
+
+Faking the correct HTTP methods
+
+   Many of the API calls use PUT and DELETE methods, which may not be
+   available in the client HTTP stack you are using. You should complain to
+   the authors of that stack that it is not a full HTTP implementation. If
+   that doesn't work, then there is a work-around by putting the
+   X_HTTP_METHOD_OVERRIDE header with the value of the method you want to
+   simulate. For example, to make curl do a POST, but use the PUT handler,
+   do:
+
+ curl -v -v -d @changeset.osm -H \
+   "X_HTTP_METHOD_OVERRIDE: PUT" \
+   "http://server/api/0.6/changeset/create"
+
+
+                                   API calls
+
+Miscellaneous
+
+  Capabilities: GET /api/capabilities
+
+   This API call is meant to provide information about the capabilities and
+   limitations of the current API.
+
+    Response
+
+   Returns a XML document (content type text/xml)
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <osm version="0.6" generator="OpenStreetMap server">
+    <api>
+      <version minimum="0.6" maximum="0.6"/>
+      <area maximum="0.25"/>
+      <tracepoints per_page="5000"/>
+      <waynodes maximum="2000"/>
+      <changesets maximum_elements="50000"/>
+      <timeout seconds="300"/>
+      <status database="online" api="online" gpx="online"/>
+    </api>
+  </osm>
+
+   Please note that actual returned values may change at any time and this
+   XML document only serves as an example.
+
+     * Version minimum and maximum are the API call versions that the server
+       will accept.
+     * Area maximum is the maximum area in square degrees that can be queried
+       by API calls.
+     * Tracepoints per_page is the maximum number of points in a single GPS
+       trace. (Possibly incorrect)
+     * Waypoints maximum is the maximum number of nodes that a way may
+       contain.
+     * Changesets maximum is the maximum number of combined nodes, ways and
+       relations that can be contained in a changeset.
+     * The status element returns either online, readonly or offline for each
+       of the database, API and GPX API. The database field is informational,
+       and the API/GPX-API fields indicate whether a client should expect
+       read and write requests to work (online), only read requests to work
+       (readonly) or no requests to work (offline).
+
+    Notes
+
+     * Note that the URL is versionless. For convenience, the server supports
+       the request /api/0.6/capabilities too, such that clients can use the
+       same URL prefix http:/.../api/0.6 for all requests.
+
+  Retrieving map data by bounding box: GET /api/0.6/map
+
+   The following command returns:
+
+     * All nodes that are inside a given bounding box and any relations that
+       reference them.
+     * All ways that reference at least one node that is inside a given
+       bounding box, any relations that reference them [the ways], and any
+       nodes outside the bounding box that the ways may reference.
+     * All relations that reference one of the nodes, ways or relations
+       included due to the above rules. (Does not apply recursively, see
+       explanation below.)
+
+ GET /api/0.6/map?bbox=left,bottom,right,top
+
+   where:
+
+     * left is the longitude of the left (westernmost) side of the bounding
+       box.
+     * bottom is the latitude of the bottom (southernmost) side of the
+       bounding box.
+     * right is the longitude of the right (easternmost) side of the bounding
+       box.
+     * top is the latitude of the top (northernmost) side of the bounding
+       box.
+
+   Note that, while this command returns those relations that reference the
+   aforementioned nodes and ways, the reverse is not true: it does not
+   (necessarily) return all of the nodes and ways that are referenced by
+   these relations. This prevents unreasonably-large result sets. For
+   example, imagine the case where:
+
+     * There is a relationship named "England" that references every node in
+       England.
+     * The nodes, ways, and relations are retrieved for a bounding box that
+       covers a small portion of England.
+
+   While the result would include the nodes, ways, and relations as specified
+   by the rules for the command, including the "England" relation, it would
+   (fortuitously) not include every node and way in England. If desired, the
+   nodes and ways referenced by the "England" relation could be retrieved by
+   their respective IDs.
+
+   Also note that ways which intersect the bounding box but have no nodes
+   within the bounding box will not be returned.
+
+    Error codes
+
+   HTTP status code 400 (Bad Request)
+           When any of the node/way/relation limits are crossed
+
+   HTTP status code 509 (Bandwidth Limit Exceeded)
+           "Error: You have downloaded too much data. Please try again
+           later." See Developer FAQ.
+
+  Retrieving permissions: GET /api/0.6/permissions
+
+   Returns the permissions granted to the current API connection.
+
+     * If the API client is not authorized, an empty list of permissions will
+       be returned.
+     * If the API client uses Basic Auth, the list of permissions will
+       contain all permissions.
+     * If the API client uses OAuth, the list will contain the permissions
+       actually granted by the user.
+
+ GET /api/0.6/permissions
+
+    Response
+
+   Returns the single permissions element containing the permission tags
+   (content type text/xml)
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <osm version="0.6" generator="OpenStreetMap server">
+    <permissions>
+      <permission name="allow_read_prefs"/>
+      ...
+      <permission name="allow_read_gpx"/>
+      <permission name="allow_write_gpx"/>
+    </permissions>
+  </osm>
+ 
+
+    Notes
+
+   Currently the following permissions can appear in the result,
+   corresponding directly to the ones used in the OAuth application
+   definition:
+
+     * allow_read_prefs (read user preferences)
+     * allow_write_prefs (modify user preferences)
+     * allow_write_diary (create diary entries, comments and make friends)
+     * allow_write_api (modify the map)
+     * allow_read_gpx (read private GPS traces)
+     * allow_write_gpx (upload GPS traces)
+
+Changesets
+
+   To make it easier to identify related changes the concept of changesets is
+   introduced. Every modification of the standard OSM elements has to
+   reference an open changeset. A changeset may contain tags just like the
+   other elements. A recommended tag for changesets is the key comment=* with
+   a short human readable description of the changes being made in that
+   changeset, similar to a commit message in a revision control system. A new
+   changeset can be opened at any time and a changeset may referenced from
+   multiple API calls. Because of this it can be closed manually as the
+   server can't know when one changeset ends and another should begin. To
+   avoid stale open changesets a mechanism is implemented to automatically
+   close changesets upon one of the following three conditions:
+
+     * More than 50.000 edits on a single changeset See more specific limits
+     * The changeset has been open for more than 24 hours
+     * There have been no changes/API calls related to a changeset in 1 hour
+       (i.e., idle timeout)
+
+   Changesets are specifically not atomic - elements added within a changeset
+   will be visible to other users before the changeset is closed. Given how
+   many changes might be uploaded in one step it's not feasible. Instead
+   optimistic locking is used as described above. Anything submitted to the
+   server in a single request will be considered atomically. To achieve
+   transactionality for multiple changes there is the new diff upload API
+   call.
+
+   Changesets facilitate the implementation of rollbacks. By providing
+   insight into the changes committed by a single person it becomes easier to
+   identify the changes made, rather than just rolling back a whole region.
+   Direct support for rollback will not be in the API, instead they will be a
+   form of reverse merging, where client can download the changeset, examine
+   the changes and then manipulate the API to obtain the desired results.
+   Rolling back a changeset can be be an extremely complex process especially
+   if the rollback conflicts with other changes made in the mean time; we
+   expect (hope) that in time, expert applications will be created that make
+   rollback on various levels available to the average user.
+
+   To support easier usage, the server stores a bounding box for each
+   changeset and allows users to query changesets in an area. This will be
+   calculated by the server, since it needs to look up the relevant nodes
+   anyway. As an optimisation the server will create a buffer slightly larger
+   than the objects to avoid having to update the bounding box too often.
+   Client should note that if people make many small changes in a large area
+   they will be easily matched. In this case clients should examine the
+   changeset directly to see if it truly overlaps. A client can expand the
+   bounding box manually using an API call, which can be useful when the
+   client already knows the full extent of the data it is about to upload.
+
+   It is not possible to delete changesets at the moment, even if they don't
+   contain any changes. The server may at a later time delete changesets
+   which are closed and which do not contain any changes. This is not yet
+   implemented.
+
+  Bounding box computation
+
+   This is how the API computes the bounding box associated with a changeset:
+
+     * Nodes: Any change to a node, including deletion, adds the node's old
+       and new location to the bbox.
+     * Ways: Any change to a way, including deletion, adds all of the way's
+       nodes to the bbox.
+     * Relations:
+
+              * adding or removing nodes or ways from a relation causes them
+                to be added to the changeset bounding box.
+              * adding a relation member or changing tag values causes all
+                node and way members to be added to the bounding box.
+              * this is similar to how the map call does things and is
+                reasonable on the assumption that adding or removing members
+                doesn't materially change the rest of the relation.
+
+  Create: PUT /api/0.6/changeset/create
+
+   The payload of a changeset creation request has to be one or more
+   changeset elements optionally including an arbitrary number of tags.
+
+ <osm>
+   <changeset>
+     <tag k="created_by" v="JOSM 1.61"/>
+     <tag k="comment" v="Just adding some streetnames"/>
+     ...
+   </changeset>
+   ...
+ </osm>
+
+   If there are multiple changeset elements in the XML the tags from all of
+   them are used, later ones overriding the earlier ones in case of duplicate
+   keys.
+
+    Response
+
+   The ID of the newly created changeset with a content type of text/plain
+
+    Error codes
+
+   HTTP status code 400 (Bad Request)
+           When there are errors parsing the XML
+
+   HTTP status code 405 (Method Not Allowed)
+           If the request is not a HTTP PUT request
+
+    Notes
+
+   Any number of possibly editor-specific, tags are allowed. An editor might,
+   for example, automatically include information about which background
+   image was used, or even a bit of internal state information that will make
+   it easier to revisit the changeset with the same editor later, etc.
+
+   Clients should include a created_by=* tag. Clients are advised to make
+   sure that a comment=* is present, which the user has entered. It is
+   optional at the moment but this might change in later API versions.
+   Clients should not automatically generate the comment tag, as this tag is
+   for the end-user to describe their changes. Clients may add any other tags
+   as they see fit.
+
+  Read: GET /api/0.6/changeset/#id
+
+   Returns the changeset with the given id in OSM-XML format.
+
+ <osm>
+   <changeset id="10" user="fred" uid="123" created_at="2008-11-08T19:07:39+01:00" open="true" min_lon="7.0191821" min_lat="49.2785426" max_lon="7.0197485" max_lat="49.2793101">
+     <tag k="created_by" v="JOSM 1.61"/>
+     <tag k="comment" v="Just adding some streetnames"/>
+     ...
+  </changeset>
+ </osm>
+
+    Parameters
+
+   id
+           The id of the changeset to retrieve
+
+    Response
+
+   Returns the single changeset element containing the changeset tags with a
+   content type of text/xml
+
+    Error codes
+
+   HTTP status code 404 (Not Found)
+           When no changeset with the given id could be found
+
+    Notes
+
+     * The uid might not be available for changesets auto generated by the
+       API v0.5 to API v0.6 transition?
+     * The bounding box attributes will be missing for an empty changeset.
+     * The changeset bounding box is a rectangle that contains the bounding
+       boxes of all objects changed in this changeset. It is not necessarily
+       the smallest possible rectangle that does so.
+     * This API call only returns information about the changeset itself but
+       not the actual changes made to elements in this changeset. To access
+       this information use the download API call.
+
+  Update: PUT /api/0.6/changeset/#id
+
+   For updating tags on the changeset, e.g. changeset comment=foo.
+
+   Payload should be an OSM document containing the new version of a single
+   changeset. Bounding box, update time and other attributes are ignored and
+   cannot be updated by this method. For updating the bounding box see the
+   expand_bbox method.
+
+ <osm>
+   <changeset>
+     <tag k="comment" v="Just adding some streetnames and a restaurant"/>
+   </changeset>
+ </osm>
+
+    Parameters
+
+   id
+           The id of the changeset to update. The user issuing this API call
+           has to be the same that created the changeset
+
+    Response
+
+   An OSM document containing the new version of the changeset with a content
+   type of text/xml
+
+    Error codes
+
+   HTTP status code 400 (Bad Request)
+           When there are errors parsing the XML
+
+   HTTP status code 404 (Not Found)
+           When no changeset with the given id could be found
+
+   HTTP status code 405 (Method Not Allowed)
+           If the request is not a HTTP PUT request
+
+   HTTP status code 409 (Conflict) - text/plain
+           If the changeset in question has already been closed (either by
+           the user itself or as a result of the auto-closing feature). A
+           message with the format "The changeset #id was closed at
+           #closed_at." is returned
+           Or if the user trying to update the changeset is not the same as
+           the one that created it
+
+    Notes
+
+   Unchanged tags have to be repeated in order to not be deleted.
+
+  Close: PUT /api/0.6/changeset/#id/close
+
+   Closes a changeset. A changeset may already have been closed without the
+   owner issuing this API call. In this case an error code is returned.
+
+    Parameters
+
+   id
+           The id of the changeset to close. The user issuing this API call
+           has to be the same that created the changeset.
+
+    Response
+
+   Nothing is returned upon successful closing of a changeset (HTTP status
+   code 200)
+
+    Error codes
+
+   HTTP status code 404 (Not Found)
+           When no changeset with the given id could be found
+
+   HTTP status code 405 (Method Not Allowed)
+           If the request is not a HTTP PUT request
+
+   HTTP status code 409 (Conflict) - text/plain
+           If the changeset in question has already been closed (either by
+           the user itself or as a result of the auto-closing feature). A
+           message with the format "The changeset #id was closed at
+           #closed_at." is returned
+           Or if the user trying to update the changeset is not the same as
+           the one that created it
+
+  Download: GET /api/0.6/changeset/#id/download
+
+   Returns the OsmChange document describing all changes associated with the
+   changeset.
+
+    Parameters
+
+   id
+           The id of the changeset for which the OsmChange is requested.
+
+    Response
+
+   The OsmChange XML with a content type of text/xml.
+
+    Error codes
+
+   HTTP status code 404 (Not Found)
+           When no changeset with the given id could be found
+
+    Notes
+
+     * The result of calling this may change as long as the changeset is
+       open.
+     * The elements in the OsmChange are sorted by timestamp and version
+       number.
+
+  Expand Bounding Box: POST /api/0.6/changeset/#id/expand_bbox
+
+   POSTing a XML document containing node elements (these node elements have
+   nothing to do with the Nodes mentioned elsewhere in this page, they are
+   merely a container for lat and lon attributes) that are to this location
+   will cause the bounding box of the changeset to expand to exactly the
+   smallest containing rectangle of the points given and the bounding box
+   automatically calculated by the API. So this call can only increase the
+   size of the bounding box and later additions to the changeset may override
+   the expanded bounding box.
+
+   The input document should look like this:
+
+ <osm>
+   <node lat=".." lon=".."/>
+   <node lat=".." lon=".."/>
+   ...
+ </osm>
+
+   The osm element may contain other elements than node, but these are
+   ignored. The node element may contain other attributes (including id) than
+   lat and lon, but these are ignored as well.
+
+   This call is supported to give editors the chance to expand the bounding
+   box that the API automatically computes for the changeset. There are cases
+   where the editor will have extra knowledge that make it advisable to flag
+   a larger area as changed than the API would guess from the changes alone.
+   This call may also be used before uploading a large number of changes as a
+   hint for the server which area will be affected.
+
+    Parameters
+
+   id
+           The id of the changeset for which the OsmChange is requested.
+
+    Response
+
+   Returns the updated changeset containing with a content type of text/xml.
+
+    Error codes
+
+   HTTP status code 404 (Not Found)
+           When no changeset with the given id could be found
+
+   HTTP status code 409 (Conflict) - text/plain
+           If the changeset in question has already been closed (either by
+           the user itself or as a result of the auto-closing feature). A
+           message with the format "The changeset #id was closed at
+           #closed_at." is returned
+           Or if the user trying to update the changeset is not the same as
+           the one that created it
+
+    Notes
+
+     * I don't know if there are really any advantages in issuing a
+       expand_bbox call before a large chunk of changes is uploaded.
+     * As the reuse of node as a XML element name is confusing and the format
+       of this call might change in a later API version.
+
+  Query: GET /api/0.6/changesets
+
+   This is an API method for querying changesets. It supports querying by
+   different criteria.
+
+   Where multiple queries are given the result will be those which match all
+   of the requirements. The contents of the returned document are the
+   changesets and their tags. To get the full set of changes associated with
+   a changeset, use the download method on each changeset ID individually.
+
+   Modification and extension of the basic queries above may be required to
+   support rollback and other uses we find for changesets.
+
+    Parameters
+
+   bbox=min_lon,min_lat,max_lon,max_lat (W,S,E,N)
+           Find changesets within the given bounding box
+
+   user=#uid or display_name=#name
+           Find changesets by the user with the given user id or display
+           name. Providing both is an error.
+
+   time=T1
+           Find changesets closed after T1
+
+   time=T1,T2
+           Find changesets that were closed after T1 and created before T2
+
+   open=true
+           Only finds changesets that are still open but excludes changesets
+           that are closed or have reached the element limit for a changeset
+           (50.000 at the moment)
+
+   closed=true
+           Only finds changesets that are closed or have reached the element
+           limit
+
+   Time format: Anything that this Ruby function will parse. The default str
+   is '-4712-01-01T00:00:00+00:00'; this is Julian Day Number day 0.
+
+    Response
+
+   Returns a list of all changeset ordered by creation date. The <osm>
+   element may be empty if there were no results for the query. The response
+   is send with a content type of text/xml.
+
+    Error codes
+
+   HTTP status code 400 (Bad Request) - text/plain
+           On misformed parameters. A text message explaining the error is
+           returned. In particular, trying to provide both the UID and
+           display name as user query parameters will result in this error.
+
+   HTTP status code 404 (Not Found)
+           When no user with the given uid or display_name could be found.
+
+    Notes
+
+     * Only changesets by public users are returned.
+     * I'm not sure if the time query makes sense as it is implemented now.
+       The original documentation for this feature states:
+          * One-sided to query changesets where the start time is after the
+            given time.
+          * Bounded (?time=T1,T2) to query where the start time is between
+            the given times.
+     * Returns at most 100 changesets
+
+  Diff upload: POST /api/0.6/changeset/#id/upload
+
+   With this API call files in the OsmChange format can be uploaded to the
+   server. This is guaranteed to be running in a transaction. So either all
+   the changes are applied or none.
+
+   To upload an OSC file it has to conform to the OsmChange specification
+   with the following differences:
+
+     * each element must carry a changeset and a version attribute, except
+       when you are creating an element where the version is not required as
+       the server sets that for you. The changeset must be the same as the
+       changeset ID being uploaded to.
+     * a <delete> block in the OsmChange document may have an if-unused
+       attribute (the value of which is ignored). If this attribute is
+       present, then the delete operation(s) in this block are conditional
+       and will only be executed if the object to be deleted is not used by
+       another object. Without the if-unused, such a situation would lead to
+       an error, and the whole diff upload would fail.
+     * OsmChange documents generally have user and uid attributes on each
+       element. These are not required in the document uploaded to the API.
+
+    Parameters
+
+   id
+           The ID of the changeset this diff belongs to.
+
+   POST data
+           The OsmChange file data
+
+    Response
+
+   If a diff is successfully applied a XML (content type text/xml) is
+   returned in the following format
+
+ <diffResult generator="OpenStreetMap Server" version="0.6">
+   <node|way|relation old_id="#" new_id="#" new_version="#"/>
+   ...
+ </diffResult>
+
+   with one element for every element in the upload. Note that this can be
+   counter-intuitive when the same element has appeared multiple times in the
+   input then it will appear multiple times in the output.
+
+   Attribute   create modify           delete      
+   old_id      same as uploaded element.
+   new_id      new ID same as uploaded not present 
+   new_version new version             not present 
+
+    Error codes
+
+   HTTP status code 400 (Bad Request) - text/plain
+           When there are errors parsing the XML. A text message explaining
+           the error is returned.
+           When an placeholder ID is missing or not unique
+
+   HTTP status code 405 (Method Not Allowed)
+           If the request is not a HTTP POST request
+
+   HTTP status code 409 (Conflict) - text/plain
+           If the changeset in question has already been closed (either by
+           the user itself or as a result of the auto-closing feature). A
+           message with the format "The changeset #id was closed at
+           #closed_at." is returned
+           If, while uploading, the max. size of the changeset is exceeded. A
+           message with the format "The changeset #id was closed at
+           #closed_at." is returned
+           Or if the user trying to update the changeset is not the same as
+           the one that created it
+           Or if the diff contains elements with changeset IDs which don't
+           match the changeset ID that the diff was uploaded to
+           Any of the error codes that could occur an a create, update or
+           delete operation for one of the elements
+           See the according sections in this page
+
+    Notes
+
+     * Processing stops at the first error, so if there are multiple
+       conflicts in one diff upload, only the first problem is reported.
+     * There is currently no limit in the diff size but this will probably be
+       changed later.
+
+  Changeset summary
+
+   The procedure for successful creation of a changeset is summarized in the
+   following picture:
+
+   OSM API0.6 Changeset successful creation V0.1.png
+
+   Image:
+   OSM_API0.6_Changeset_successful_creation_V0.1.png
+
+
+Elements
+
+   There are create, read, update and delete calls for all of the three basic
+   elements in OpenStreetMap (Nodes, Ways and Relations). These calls are
+   very similar except for the payload and a few special error messages so
+   they are documented only once.
+
+  Create: PUT /api/0.6/[node|way|relation]/create
+
+   Creates a new element of the specified type. Note that the entire request
+   should be wrapped in a
+
+ <osm>...</osm>
+
+   element.
+
+   A Node:
+
+ <osm>
+  <node changeset="12" lat="..." lon="...">
+    <tag k="note" v="Just a node"/>
+    ...
+  </node>
+ </osm>
+
+   A Way:
+
+ <osm>
+  <way changeset="12">
+    <tag k="note" v="Just a way"/>
+    ...
+    <nd ref="123"/>
+    <nd ref="4345"/>
+    ...
+  </way>
+ </osm>
+
+   A Relation:
+
+ <osm>
+  <relation changeset="12">
+    <tag k="note" v="Just a relation"/>
+    ...
+    <member type="node" role="stop" ref="123"/>
+    <member type="way" ref="234"/>
+  </relation>
+ </osm>
+
+   If multiple elements are provided only the first is created. The rest is
+   discarded (this behaviour differs from changeset creation).
+
+    Response
+
+   The ID of the newly created element (content type is text/plain)
+
+    Error codes
+
+   HTTP status code 400 (Bad Request) - text/plain
+           When there are errors parsing the XML. A text message explaining
+           the error is returned.
+           When a changeset ID is missing (unfortunately the error messages
+           are not consistent)
+           When a node is outside the world
+           When there are too many nodes for a way
+
+   HTTP status code 405 (Method Not Allowed)
+           If the request is not a HTTP PUT request
+
+   HTTP status code 409 (Conflict) - text/plain
+           If the changeset in question has already been closed (either by
+           the user itself or as a result of the auto-closing feature). A
+           message with the format "The changeset #id was closed at
+           #closed_at." is returned
+           Or if the user trying to update the changeset is not the same as
+           the one that created it
+
+   HTTP status code 412 (Precondition Failed)
+           When a way has nodes that do not exist or are not visible (i.e.
+           deleted): "Way #{id} requires the nodes with id in
+           (#{missing_ids}), which either do not exist, or are not visible."
+           When a relation has elements that do not exist or are not visible:
+           "Relation with id #{id} cannot be saved due to #{element} with id
+           #{element.id}"
+
+    Notes
+
+     * This updates the bounding box of the changeset.
+     * The role attribute for relations is optional. An empty string is the
+       default.
+
+  Read: GET /api/0.6/[node|way|relation]/#id
+
+   Returns the XML representation of the element.
+
+    Response
+
+   XML representing the element, wrapped in an <osm> element:
+
+ <osm>
+  <node id="123" lat="..." lon="..." version="142" changeset="12" user="fred" uid="123" visible="true" timestamp="2005-07-30T14:27:12+01:00">
+    <tag k="note" v="Just a node"/>
+    ...
+  </node>
+ </osm>
+
+    Error codes
+
+   HTTP status code 404 (Not Found)
+           When no element with the given id could be found
+
+   HTTP status code 410 (Gone)
+           If the element has been deleted
+
+  Update: PUT /api/0.6/[node|way|relation]/#id
+
+   Updates data from a preexisting element. A full representation of the
+   element as it should be after the update has to be provided. So any tags
+   that remain unchanged have to be in the update as well. A version number
+   has to be provided as well.
+
+    Response
+
+   Returns the new version number with a content type of text/plain.
+
+    Error codes
+
+   HTTP status code 400 (Bad Request) - text/plain
+           When there are errors parsing the XML. A text message explaining
+           the error is returned. This can also happen if you forget to pass
+           the Content-Length header.
+           When a changeset ID is missing (unfortunately the error messages
+           are not consistent)
+           When a node is outside the world
+           When there are too many nodes for a way
+           When the version of the provided element does not match the
+           current database version of the element
+
+   HTTP status code 409 (Conflict) - text/plain
+           If the changeset in question has already been closed (either by
+           the user itself or as a result of the auto-closing feature). A
+           message with the format "The changeset #id was closed at
+           #closed_at." is returned
+           Or if the user trying to update the changeset is not the same as
+           the one that created it
+
+   HTTP status code 404 (Not Found)
+           When no element with the given id could be found
+
+   HTTP status code 412 (Precondition Failed)
+           When a way has nodes that do not exist or are not visible (i.e.
+           deleted): "Way #{id} requires the nodes with id in
+           (#{missing_ids}), which either do not exist, or are not visible."
+           When a relation has elements that do not exist or are not visible:
+           "Relation with id #{id} cannot be saved due to #{element} with id
+           #{element.id}"
+
+    Notes
+
+     * This updates the bounding box of the changeset.
+
+  Delete: DELETE /api/0.6/[node|way|relation]/#id
+
+   Expects a valid XML representation of the element to be deleted.
+
+   For example:
+
+ <osm>
+  <node id="..." version="..." changeset="..."/>
+ </osm>
+
+   Where the node ID in the XML must match the ID in the URL, the version
+   must match the version of the element you downloaded and the changeset
+   must match the ID of an open changeset owned by the current authenticated
+   user. It is allowed, but not necessary, to have tags on the element except
+   for lat/long tags which are required, see
+   http://web.archiveorange.com/archive/v/wQWIbRy3o8HjRNYaSim9 and also
+   tested to still hold on 2011-05-30, without lat+lon the server gives 400
+   Bad request.
+
+    Response
+
+   Returns the new version number with a content type of text/plain.
+
+    Error codes
+
+   HTTP status code 400 (Bad Request) - text/plain
+           When there are errors parsing the XML. A text message explaining
+           the error is returned.
+           When a changeset ID is missing (unfortunately the error messages
+           are not consistent)
+           When a node is outside the world
+           When there are too many nodes for a way
+           When the version of the provided element does not match the
+           current database version of the element
+
+   HTTP status code 404 (Not Found)
+           When no element with the given id could be found
+
+   HTTP status code 409 (Conflict) - text/plain
+           If the changeset in question has already been closed (either by
+           the user itself or as a result of the auto-closing feature). A
+           message with the format "The changeset #id was closed at
+           #closed_at." is returned
+           Or if the user trying to update the changeset is not the same as
+           the one that created it
+
+   HTTP status code 410 (Gone)
+           If the element has already been deleted
+
+   HTTP status code 412 (Precondition Failed)
+           When a node is still used by a way: Node #{id} is still used by
+           way #{way.id}.
+           When a node is still member of a relation: Node #{id} is still
+           used by relation #{relation.id}.
+           When a way is still member of a relation: Way #{id} still used by
+           relation #{relation.id}.
+           When a relation is still member of another relation: The relation
+           #{id} is used in relation #{relation.id}.
+
+    Notes
+
+     * In earlier API versions no payload was required. It is needed now
+       because of the need for changeset IDs and version numbers.
+
+  History: GET /api/0.6/[node|way|relation]/#id/history
+
+   Retrieves all old versions of an element.
+
+    Error codes
+
+   HTTP status code 404 (Not Found)
+           When no element with the given id could be found
+
+  Version: GET /api/0.6/[node|way|relation]/#id/#version
+
+   Retrieves a specific version of the element.
+
+    Error codes
+
+   HTTP status code 403 (Forbidden)
+           When the version of the element is not available (due to
+           redaction)
+
+   HTTP status code 404 (Not Found)
+           When no element with the given id could be found
+
+  Multi fetch: GET /api/0.6/[nodes|ways|relations]?#parameters
+
+   Allows a user to fetch multiple elements at once.
+
+    Parameters
+
+   [nodes|ways|relations]=comma separated list
+           The parameter has to be the same in the URL (e.g.
+           /api/0.6/nodes?nodes=123,456,789)
+
+    Error codes
+
+   HTTP status code 400 (Bad Request)
+           On a malformed request (parameters missing or wrong)
+
+   HTTP status code 404 (Not Found)
+           If one of the elements could not be found (By "not found" is meant
+           never existed in the database, if the object was deleted, it will
+           be returned with the attribute visible="false")
+
+   HTTP status code 414 (Request-URI Too Large)
+           If the URI was too long (How long is too long?)
+
+  Relations for element: GET /api/0.6/[node|way|relation]/#id/relations
+
+   Returns a XML document containing all (not deleted) relations in which the
+   given element is used.
+
+    Notes
+
+     * There is no error if the element does not exist.
+     * If the element does not exist or it isn't used in any relations an
+       empty XML document is returned (apart from the <osm> elements)
+
+  Ways for node: GET /api/0.6/node/#id/ways
+
+   Returns a XML document containing all the (not deleted) ways in which the
+   given node is used.
+
+    Notes
+
+     * There is no error if the node does not exist.
+     * If the node does not exist or it isn't used in any ways an empty XML
+       document is returned (apart from the <osm> elements)
+
+  Full: GET /api/0.6/[way|relation]/#id/full
+
+   This API call retrieves a way or relation and all other elements
+   referenced by it
+
+     * For a way, it will return the way specified plus the full XML of all
+       nodes referenced by the way.
+     * For a relation, it will return the following:
+          * The relation itself
+          * All nodes, ways, and relations that are members of the relation
+          * Plus all nodes used by ways from the previous step
+          * The same recursive logic is not applied to relations. This means:
+            If relation r1 contains way w1 and relation r2, and w1 contains
+            nodes n1 and n2, and r2 contains node n3, then a "full" request
+            for r1 will give you r1, r2, w1, n1, and n2. Not n3.
+
+    Error codes
+
+   HTTP status code 404 (Not Found)
+           When no element with the given id could be found
+
+   HTTP status code 410 (Gone)
+           If the element has been deleted
+
+  Redaction: PUT
+  /api/0.6/[node|way|relation]/#id/#version/redact?redaction=#redaction_id
+
+   This is an API method originaly created for the ODbL license change to
+   hide contributions from users that did not accept the new CT/licence. It
+   is now used by the DWG to hide old versions of elements containing data
+   privacy or copyright infringements. All API retrieval request for the
+   element #version will return an HTTP error 403.
+
+    Notes
+
+     * only permitted for OSM accounts with the moderator role (DWG and
+       server admins)
+     * the #redaction_id is listed on http://www.openstreetmap.org/redactions
+     * more information can be found in the source
+     * This is an extremely specialized call
+
+GPS traces
+
+  Retrieving GPS points
+
+   The following command returns, in GPX format, the GPS track points that
+   are inside a given bounding box.
+
+ GET /api/0.6/trackpoints?bbox=left,bottom,right,top&page=pageNumber
+
+   where:
+
+     * left, bottom, right, and top are used the same way as they are in the
+       command to retrieve nodes, ways, and relations.
+     * pageNumber specifies which group of 5,000 points, or page, to return.
+       Since the command does not return more than 5,000 points at a time,
+       this parameter must be incremented-and the command sent again (using
+       the same bounding box)-in order to retrieve all of the points for a
+       bounding box that contains more than 5,000 points. When this parameter
+       is 0 (zero), the command returns the first 5,000 points; when it is 1,
+       the command returns points 5,001-10,000, etc.
+
+    Examples
+
+   Retrieve the first 5,000 points for a bounding box:
+
+ http://api.openstreetmap.org/api/0.6/trackpoints?bbox=0,51.5,0.25,51.75&page=0
+
+   Retrieve the next 5,000 points (points 5,001-10,000) for the same bounding
+   box:
+
+ http://api.openstreetmap.org/api/0.6/trackpoints?bbox=0,51.5,0.25,51.75&page=1
+
+  Uploading traces
+
+   You can upload a GPX file or archive of GPX files through the API:
+
+   POST /api/0.6/gpx/create 
+
+   This is the only API call using the POST method. It expects the following
+   POST parameters in a multipart/form-data HTTP message:
+
+   parameter   description                                                    
+               The GPX file containing the track points. Note that for        
+               successful processing, the file must contain trackpoints       
+               (<trkpt>), not only waypoints, and the trackpoints must have a 
+   file        valid timestamp. Since the file is processed asynchronously,   
+               the call will complete successfully even if the file cannot be 
+               processed. The file may also be a .tar, .tar.gz or .zip        
+               containing multiple gpx files, although it will appear as a    
+               single entry in the upload log.                                
+   description The trace description.                                         
+   tags        A string containing tags for the trace.                        
+               1 if the trace is public, 0 if not. This exists for backwards  
+   public      compatibility only - the visibility parameter should now be    
+               used instead. This value will be ignored if visibility is also 
+               provided.                                                      
+               One of the following: private, public, trackable, identifiable 
+   visibility  (for explanations see OSM trace upload page or Visibility of   
+               GPS traces)                                                    
+
+   HTTP basic authentication is required.
+
+  Downloading trace metadata
+
+   You access a GPX file's details and download the full file:
+
+   GET /api/0.6/gpx/<id>/details 
+   GET /api/0.6/gpx/<id>/data    
+
+   HTTP basic authentication is required, although theoretically these calls
+   should be allowed without authentication if the trace is marked public. If
+   the trace is not public, only the owner may access the data.
+
+   Example "details" response:
+
+   <?xml version="1.0" encoding="UTF-8"?>                                      
+   <osm version="0.6" generator="OpenStreetMap server">                        
+     <gpx_file id="836619" name="track.gpx" lat="52.0194" lon="8.51807"        
+               user="Hartmut Holzgraefe" visibility="public" pending="false"   
+               timestamp="2010-10-09T09:24:19Z">                               
+       <description>PHP upload test</description>                              
+       <tag>test</tag>                                                         
+       <tag>php</tag>                                                          
+     </gpx_file>                                                               
+   </osm>                                                                      
+
+   The "data" response will be the exact file uploaded.
+
+   You can also get a list of all the GPX traces for the authenticated user
+   using:
+
+   GET /api/0.6/user/gpx_files 
+
+Methods for user data
+
+  Details of a user
+
+   This API method was added in September 2012 (code).
+
+   You can get the home location and the displayname of the user, by using
+
+ GET /api/0.6/user/#id
+
+   this returns for example
+
+  <osm version="0.6" generator="OpenStreetMap server">
+    <user id="12023" display_name="jbpbis" account_created="2007-08-16T01:35:56Z">
+      <description></description>
+      <contributor-terms agreed="false"/>
+      <img href="http://www.gravatar.com/avatar/c8c86cd15f60ecca66ce2b10cb6b9a00.jpg?s=256&d=http%3A%2F%2Fwww.openstreetmap.org%2Fassets%2Fusers%2Fimages%2Flarge-39c3a9dc4e778311af6b70ddcf447b58.png"/>
+      <roles>
+      </roles>
+      <changesets count="1"/>
+      <traces count="0"/>
+      <blocks>
+        <received count="0" active="0"/>
+      </blocks>
+    </user>
+  </osm>
+
+   or an empty file if no user found for given identifier.
+
+  Details of the logged-in user
+
+   You can get the home location and the displayname of the user, by using
+
+ GET /api/0.6/user/details
+
+   this returns an XML document of the from
+
+ <osm version="0.6" generator="OpenStreetMap server">
+  <user display_name="Max Muster" account_created="2006-07-21T19:28:26Z" id="1234">
+    <contributor-terms agreed="true" pd="true"/>
+    <img href="http://www.openstreetmap.org/attachments/users/images/000/000/1234/original/someLongURLOrOther.JPG"/>
+    <roles></roles>
+    <changesets count="4182"/>
+    <traces count="513"/>
+    <blocks>
+        <received count="0" active="0"/>
+    </blocks>
+    <home lat="49.4733718952806" lon="8.89285988577866" zoom="3"/>
+    <description>The description of your profile</description>
+    <languages>
+      <lang>de-DE</lang>
+      <lang>de</lang>
+      <lang>en-US</lang>
+      <lang>en</lang>
+    </languages>
+  </user>
+ </osm>
+
+  Preferences of the logged-in user
+
+   The OSM server supports storing arbitrary user preferences. This can be
+   used by editors, for example, to offer the same configuration wherever the
+   user logs in, instead of a locally-stored configuration.
+
+   You can retrieve the list of current preferences using
+
+  GET /api/0.6/user/preferences
+
+   this returns an XML document of the form
+
+   <osm version="0.6" generator="OpenStreetMap server">
+     <preferences>
+        <preference k="somekey" v="somevalue" />
+        ...
+     </preferences>
+   </osm>
+
+   The same structure can be used to upload preferences (using the PUT method
+   instead of GET). All existing preferences are replaced by the newly
+   uploaded set.
+
+   Also possible is to PUT a single preference using
+
+  PUT /api/0.6/user/preferences/[your_key] (without the brackets)
+
+   in this instance, the payload of the request should only contain the value
+   of the preference, i.e. not XML formatted.
+
+   The PUT call returns HTTP response code 406 (not acceptable) if the same
+   key occurs more than once, and code 413 (request entity too large) if you
+   try to upload more than 150 preferences at once. The sizes of the key and
+   value are limited to 255 characters.
+
+Map Notes API
+
+   This provides access the the notes feature, which allows users to add
+   geo-referenced textual "post-it" notes. This feature was not originally in
+   the API 0.6 and was only added later ( 04/23/2013 in commit
+   0c8ad2f86edefed72052b402742cadedb0d674d9 )
+
+  Retrieving bug data by bounding box: GET /api/0.6/notes
+
+   Returns the existing notes in the specified bounding box. The notes will
+   be ordered by the date of their last change, the most recent one will be
+   first. The list of notes can be returned in several different forms (e.g.
+   as executable JavaScript, XML, RSS, json and GPX) depending on the file
+   extension.
+
+   URL: http://api.openstreetmap.org/api/0.6/notes?bbox=left,bottom,right,top
+   (example)
+   Return type: application/xml
+
+   +------------------------------------------------------------------------+
+   | Parameter | Description          | Allowed values      | Default value |
+   |-----------+----------------------+---------------------+---------------|
+   |           | Coordinates for the  | Floating point      | none,         |
+   | bbox      | area to retrieve the | numbers in degrees  | parameter     |
+   |           | bugs from            |                     | required      |
+   |-----------+----------------------+---------------------+---------------|
+   |           | Specifies the number | A value of between  | 100 is the    |
+   | limit     | of entries returned  | 1 and 10000 is      | default       |
+   |           | at max               | valid               |               |
+   |-----------+----------------------+---------------------+---------------|
+   |           | Specifies the number | A value of 0 means  |               |
+   |           | of days a bug needs  | only open bugs are  | 7 is the      |
+   | closed    | to be closed to no   | returned. A value   | default       |
+   |           | longer be returned   | of -1 means all     |               |
+   |           |                      | bugs are returned.  |               |
+   +------------------------------------------------------------------------+
+
+   You can specify the format you want the results returned as by specifying
+   a file extension. E.g. example to get results in json. Currently the
+   format RSS, XML, json and gpx are supported.
+
+    Error codes
+
+   HTTP status code 400 (Bad Request)
+           When any of the limits are crossed
+
+  Read: GET /api/0.6/notes/#id
+
+   Returns the existing note with the given ID. The output can be in several
+   formats (e.g. XML, RSS, json or GPX) depending on the file extension.
+
+   URL: http://api.openstreetmap.org/api/0.6/notes/#id ([1])
+   Return type: application/xml
+
+    Error codes
+
+   HTTP status code 404 (Not Found)
+           When no bug with the given id could be found
+
+  Create a new bug: Create: POST /api/0.6/notes
+
+   Create a new bug
+
+   URL:
+   http://api.openstreetmap.org/api/0.6/notes?lat=51.00&lon=0.1&text=ThisIsABug
+   (example)
+   Return type: application/xml
+
+   +------------------------------------------------------------------------+
+   | Parameter | Description          | Allowed values     | Default value  |
+   |-----------+----------------------+--------------------+----------------|
+   |           | Specifies the        | floatingpoint      | No default,    |
+   | lat       | latitude of the bug  | number in degrees  | needs to be    |
+   |           |                      |                    | specified      |
+   |-----------+----------------------+--------------------+----------------|
+   |           | Specifies the        | floatingpoint      | No default,    |
+   | lon       | longitude of the bug | number in degrees  | needs to be    |
+   |           |                      |                    | specified      |
+   |-----------+----------------------+--------------------+----------------|
+   |           | A description of the | A text field with  | No default,    |
+   | text      | reported bug         | arbitrary text     | needs to be    |
+   |           |                      |                    | present        |
+   +------------------------------------------------------------------------+
+
+   If the request is made as an authenticated user, the note is associated to
+   that user account.
+
+    Error codes
+
+   HTTP status code 400 (Bad Request)
+           if the text field was not present
+
+   HTTP status code 405 (Method Not Allowed)
+           If the request is not a HTTP POST request
+
+  Create a new comment: Create: POST /api/0.6/notes/#id/comment
+
+   Add a new comment to note #id
+
+   URL:
+   http://api.openstreetmap.org/api/0.6/notes/#id/create?text=ThisIsABugComment
+   (example)
+   Return type: application/xml
+
+   +------------------------------------------------------------------------+
+   | Parameter | Description | Allowed values           | Default value     |
+   |-----------+-------------+--------------------------+-------------------|
+   | text      | The comment | A text field with        | No default, needs |
+   |           |             | arbitrary text           | to be present     |
+   +------------------------------------------------------------------------+
+
+    Error codes
+
+   HTTP status code 400 (Bad Request)
+           if the text field was not present
+
+   HTTP status code 404 (Not found)
+           if no bug with that id is not available
+
+   HTTP status code 405 (Method Not Allowed)
+           If the request is not a HTTP POST request
+
+  Close: PUT /api/0.6/note/#id/close
+
+   Close a note as fixed.
+
+   URL: http://api.openstreetmap.org/api/0.6/notes/#id/close?text=Comment
+   (example)
+   Return type: application/xml
+
+   This request needs to be done as an authenticated user.
+
+    Error codes
+
+   HTTP status code 404 (Not Found)
+           When no bug with the given id could be found
+
+   HTTP status code 405 (Method Not Allowed)
+           If the request is not a HTTP PUT request
+
+  Search for notes on text and comments: GET /api/0.6/notes/search
+
+   Returns the existing notes matching either the initial note text or any of
+   the comments. The notes will be ordered by the date of their last change,
+   the most recent one will be first. The list of notes can be returned in
+   several different forms (e.g. XML, RSS, json or GPX) depending on file
+   extension given.
+
+   URL: http://api.openstreetmap.org/api/0.6/notes/search?q=SearchTerm ([2])
+   Return type: application/xml
+
+   +------------------------------------------------------------------------+
+   | Parameter | Description          | Allowed values      | Default value |
+   |-----------+----------------------+---------------------+---------------|
+   |           | Specified the search |                     | none,         |
+   | q         | query                | String              | parameter     |
+   |           |                      |                     | required      |
+   |-----------+----------------------+---------------------+---------------|
+   |           | Specifies the number | A value of between  | 100 is the    |
+   | limit     | of entries returned  | 1 and 10000 is      | default       |
+   |           | at max               | valid               |               |
+   |-----------+----------------------+---------------------+---------------|
+   |           | Specifies the number | A value of 0 means  |               |
+   |           | of days a bug needs  | only open bugs are  | 7 is the      |
+   | closed    | to be closed to no   | returned. A value   | default       |
+   |           | longer be returned   | of -1 means all     |               |
+   |           |                      | bugs are returned.  |               |
+   +------------------------------------------------------------------------+
+
+    Error codes
+
+   HTTP status code 400 (Bad Request)
+           When any of the limits are crossed
+
+                            When NOT to use the API
+
+   For bulk upload scripts or data modification, the API may not be the
+   proper mechanism. The modern version of creating a bulk upload or
+   modification script is to build a change set, load it into an editor like
+   JOSM, and verify the work prior to commit. You can also use the API to
+   upload a change set in an atomic manner. See also: Change_File_Formats
+
+                                Further reading
+
+ * People making clients, see API v0.6 (Archive)#Changes in related_software
+ * People interested in the DB see API v0.6 (Archive)#Database improvements
+ * possible API errors
+
+   Retrieved from
+   "http://wiki.openstreetmap.org/w/index.php?title=API_v0.6&oldid=900464"
+
+ * This page was last modified on 1 May 2013, at 06:27.
+ * Content is available under Creative Commons Attribution-ShareAlike 2.0
+   license.
+ * Creative Commons Attribution-ShareAlike 2.0 license
