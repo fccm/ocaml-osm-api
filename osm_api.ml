@@ -286,6 +286,32 @@ let get_capabilities ?(test = false) () =
       invalid_arg "get_capabilities"
 
 
+let get_capabipolies ?(test = false) () =
+  let xml = get_capabilities_xml ~test in
+  match Xml.parse_string xml with
+  | Xml.Element ("osm", osm_attrs, [
+      Xml.Element ("api", _, api_children)]) ->
+        let version = get_attrib osm_attrs "version" in
+        let vers = get_child api_children "version" in
+        let version_min = Xml.attrib vers "minimum"
+        and version_max = Xml.attrib vers "maximum" in
+        let get = get_attrib_of_child api_children in
+        [ "version", version;
+          "version_min", version_min;
+          "version_max", version_max;
+          "max_area", (get "area" "maximum");
+          "tracepoints_per_page", (get "tracepoints" "per_page");
+          "max_waynodes", (get "waynodes" "maximum");
+          "changesets_max_elems", (get "changesets" "maximum_elements");
+          "timeout_sec", (get "timeout" "seconds");
+          "database_status", (get "status" "database");
+          "api_status", (get "status" "api");
+          "gpx_status", (get "status" "gpx");
+        ]
+  | _ ->
+      invalid_arg "get_capabipolies"
+
+
 let print_api_capabilities () =
   let c = get_capabilities () in
   Printf.printf "\

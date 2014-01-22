@@ -17,6 +17,7 @@ type api_capabilities = {
 }
 
 val get_capabilities : ?test:bool -> unit -> api_capabilities
+val get_capabipolies : ?test:bool -> unit -> (string * string) list
 
 val print_api_capabilities : unit -> unit
 
