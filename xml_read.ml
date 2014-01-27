@@ -82,6 +82,9 @@ let get_users = function
       | Xml.Element ("way", way_attrs, way_children) ->
           let usr = get_attrib way_attrs "user" in
           if List.mem usr acc then acc else usr::acc
+      | Xml.Element ("relation", relat_attrs, node_children) ->
+          let usr = get_attrib relat_attrs "user" in
+          if List.mem usr acc then acc else usr::acc
       | _ -> (acc)
       ) [] osm_children
 
