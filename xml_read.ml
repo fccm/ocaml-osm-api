@@ -49,6 +49,17 @@ let print_way way_attrs way_children =
   print_char '\n'
 
 
+let print_relation rel_attrs rel_children =
+  let rel_id = get_attrib rel_attrs "id" in
+  Printf.printf "rel > id=\"%s\"\n" rel_id;
+  let xml_tags = List.filter is_tag rel_children in
+  let tags = List.map map_tag xml_tags in
+  List.iter (fun (k, v) ->
+    Printf.printf "    > tag: '%s'=\"%s\"\n" k v;
+  ) tags;
+  print_char '\n'
+
+
 type node = {
   node_id: string;
   lat: string;
@@ -64,6 +75,8 @@ let print_xml = function
           print_node node_attrs node_children
       | Xml.Element ("way", way_attrs, way_children) ->
           print_way way_attrs way_children
+      | Xml.Element ("relation", relat_attrs, relat_children) ->
+          print_relation relat_attrs relat_children
       | _ -> ()
       ) osm_children
 
