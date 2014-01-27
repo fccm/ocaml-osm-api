@@ -1,4 +1,7 @@
 (** OCaml interface to the OSM API *)
+(* Public Domain: CC0 1.0
+   http://creativecommons.org/publicdomain/zero/1.0/
+*)
 
 (** {3 API Capabilities} *)
 
@@ -17,9 +20,13 @@ type api_capabilities = {
 }
 
 val get_capabilities : ?test:bool -> unit -> api_capabilities
-val get_capabipolies : ?test:bool -> unit -> (string * string) list
+(** get the API capabilities as a record *)
 
-val print_api_capabilities : unit -> unit
+val get_capabipolies : ?test:bool -> unit -> (string * string) list
+(** get the API capabilities as a polymorphic association list *)
+
+val get_capabistring : ?test:bool -> unit -> string
+(** get the API capabilities as a printable string *)
 
 
 (** {3 Bbox} *)
@@ -35,15 +42,19 @@ val get_bbox :
 
 (** {3 Changeset} *)
 
+(** TODO: implement HTTP PUT in a portable way
 val changeset_create :
   ?test:bool -> unit -> string
 
 val changeset_close :
   changeset:string -> unit -> string
+*)
 
 
 (** {3 Create elements} *)
 
+(** TODO: implement HTTP PUT in a portable way
+{[
 val put_node :
   changeset:string ->
   lat:string -> lon:string ->
@@ -72,6 +83,8 @@ val put_way :
   name:string ->
   nodes_ids:string list ->
   string
+]}
+*)
 
 
 (** {4 Utils} *)

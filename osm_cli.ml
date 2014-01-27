@@ -1,3 +1,4 @@
+(*
 #use "topfind" ;;
 #require "netclient" ;;
 #require "unix" ;;
@@ -5,6 +6,7 @@
 #directory "../osm-api/webget/" ;;
 #load "webget.cmo";;
 #load "osm_api.cmo";;
+*)
 
 module OA = Osm_api
 
@@ -65,6 +67,7 @@ let list_until this lst =
   aux [] lst
 
 
+(*
 let put_nodes ~nodes_args =
   let rec aux acc = function
   | "-node" :: "-lat" :: lat :: "-lon" :: lon :: "-tags"  :: tags ->
@@ -85,8 +88,10 @@ let put_nodes ~nodes_args =
   let ret = OA.changeset_close ~changeset () in
   Printf.printf "End(%s)\n%!" ret;
 ;;
+*)
 
 
+(*
 let put_nodes_rel ~nodes_args ~way_id =
   let rec aux acc = function
   | "-node" :: "-lat" :: lat :: "-lon" :: lon :: "-tags"  :: tags ->
@@ -108,6 +113,7 @@ let put_nodes_rel ~nodes_args ~way_id =
   let ret = OA.changeset_close ~changeset () in
   Printf.printf "End(%s)\n%!" ret;
 ;;
+*)
 
 
 let usage () =
@@ -129,11 +135,12 @@ let () =
   match List.tl (Array.to_list Sys.argv) with
 
   | ["-print-api-cap"] ->
-      OA.print_api_capabilities ()
+      print_endline (OA.get_capabistring ())
 
   | ["-map-bbox"; map_bbox] ->
       proc_map_bbox map_bbox
 
+  (*
   | "-put-node" :: "-lat" :: lat :: "-lon" :: lon :: "-tags"  :: tags ->
       let changeset = OA.changeset_create ~test:true () in
       let tags = assoc_of_list tags in
@@ -141,12 +148,17 @@ let () =
       Printf.printf "node-id '%s' created\n" node_id;
       let ret = OA.changeset_close ~changeset () in
       Printf.printf "End(%s)\n%!" ret
+  *)
 
+  (*
   | "-put-nodes" :: nodes_args ->
       put_nodes ~nodes_args
+  *)
 
+  (*
   | "-put-nodes-rel" :: way_id :: nodes_args ->
       put_nodes_rel ~nodes_args ~way_id
+  *)
 
   | _ -> usage ()
 

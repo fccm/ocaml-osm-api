@@ -12,23 +12,29 @@
 
 (* net communication *)
 
-let wget ~uri =
-  let first_line, header, page =
-    Webget.make_request ~uri ~kind:Webget.GET ()
+let wget ~url ~urn =
+  let request =
+    Printf.sprintf "GET %s HTTP/1.0\r\n\r\n" urn
   in
-  ignore (first_line);
-  ignore (header);
-  (page)
+  let response =
+    Wclient.client ~url ~request ~port:80 
+  in
+  let head, body = Wclient.resp_read response in
+  ignore (head);
+  (body)
 
 
-let wput ~uri ~data =
-  let kind = (Webget.PUT data) in
-  let first_line, header, page =
-    Webget.make_request ~uri ~kind ()
+let wput ~url ~urn ~data =
+  let request =
+    Printf.sprintf "PUT %s HTTP/1.0\r\n\
+      %s\r\n\r\n" urn data
   in
-  ignore (first_line);
-  ignore (header);
-  (page)
+  let response =
+    Wclient.client ~url ~request ~port:80 
+  in
+  let head, body = Wclient.resp_read response in
+  ignore (head);
+  (body)
 
 
 (* xml utils *)
@@ -50,8 +56,8 @@ let get_attrib_of_child children child_name attrib_name =
 
 (* api-url *)
 
-let api_url_real = "http://api.openstreetmap.org"  (* real access *)
-let api_url_test = "http://api06.dev.openstreetmap.org"  (* test/dev access *)
+let api_url_real = "api.openstreetmap.org"  (* real access *)
+let api_url_test = "api06.dev.openstreetmap.org"  (* test/dev access *)
 
 let get_api_url ~test =
   if test
@@ -68,7 +74,7 @@ let get_bbox ?(test = false) () ~left ~bottom ~right ~top =
       left bottom right top
   in
   let api_url = get_api_url ~test in
-  wget (api_url ^ bbox_urn)
+  wget api_url bbox_urn
 
 
 (* changeset *)
@@ -81,6 +87,9 @@ let changeset = "\
   </changeset>
 </osm>
 "
+
+(*
+TODO: implement HTTP PUT in a portable way
 
 module Hc = Http_client.Convenience ;;
 
@@ -125,11 +134,14 @@ let changeset_close ~changeset () =
     uri put_content;
   let response = Hc.http_put uri put_content in
   (response)
+*)
 
 
 (*
 http://wiki.openstreetmap.org/wiki/API_v0.6#Create:_PUT_.2Fapi.2F0.6.2F.5Bnode.7Cway.7Crelation.5D.2Fcreate
 *)
+
+(* TODO: implement HTTP PUT in a portable way
 
 let put_node ~changeset ~lat ~lon ~tags =
   Printf.printf "\
@@ -164,7 +176,6 @@ let put_node ~changeset ~lat ~lon ~tags =
     uri put_content;
   let response = Hc.http_put uri put_content in
   (response)
-
 
 type node = {
   lat: string;
@@ -235,6 +246,7 @@ let put_way ~changeset ~name ~nodes_ids =
   in
   let urn = "/api/0.6/way/create" in
   put_request ~urn ~content
+*)
 
 
 (* API Capabilities *)
@@ -257,7 +269,7 @@ type api_capabilities = {
 let get_capabilities_xml ~test =
   let cap_urn = "/api/capabilities" in
   let api_url = get_api_url ~test in
-  wget (api_url ^ cap_urn)
+  wget api_url cap_urn
 
 
 let get_capabilities ?(test = false) () =
@@ -312,9 +324,9 @@ let get_capabipolies ?(test = false) () =
       invalid_arg "get_capabipolies"
 
 
-let print_api_capabilities () =
-  let c = get_capabilities () in
-  Printf.printf "\
+let get_capabistring ?test () =
+  let c = get_capabilities ?test () in
+  Printf.sprintf "\
 version: %s
 version-min: %s
 version-max: %s
