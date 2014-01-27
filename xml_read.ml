@@ -60,10 +60,10 @@ type node = {
 let print_xml = function
   | Xml.Element ("osm", osm_attrs, osm_children) ->
       List.iter (function
-      | Xml.Element ("way", way_attrs, way_children) ->
-          print_way way_attrs way_children
       | Xml.Element ("node", node_attrs, node_children) ->
           print_node node_attrs node_children
+      | Xml.Element ("way", way_attrs, way_children) ->
+          print_way way_attrs way_children
       | _ -> ()
       ) osm_children
 
