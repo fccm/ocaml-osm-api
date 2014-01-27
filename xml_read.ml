@@ -73,6 +73,27 @@ let print_xml = function
 
 (* =========================== *)
 
+let get_users = function
+  | Xml.Element ("osm", osm_attrs, osm_children) ->
+      List.fold_left (fun acc -> function
+      | Xml.Element ("way", way_attrs, way_children) ->
+          let usr = get_attrib way_attrs "user" in
+          if List.mem usr acc then acc else usr::acc
+      | Xml.Element ("node", node_attrs, node_children) ->
+          let usr = get_attrib node_attrs "user" in
+          if List.mem usr acc then acc else usr::acc
+      | _ -> (acc)
+      ) [] osm_children
+
+  | _ ->
+      assert false
+
+let _print_xml xml =
+  let users = List.rev (get_users xml) in
+  List.iter print_endline users
+
+(* =========================== *)
+
 (*
 way > id="5173518"
     > nd: ref="35968107"
