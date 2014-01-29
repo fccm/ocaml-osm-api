@@ -120,7 +120,7 @@ let usage () =
   let cmd = Sys.argv.(0) in
   Printf.eprintf "Usage:\n \
     %s -print-api-cap\n \
-    %s -map-bbox \"left,bottom,right,top\"\n \
+    %s -get-bbox \"left,bottom,right,top\"\n \
     %s -changeset-create\n \
     %s -put-node -lat <lat> -lon <lon> -tags ( <key> <value> ) list\n \
     %s -put-nodes\n \
@@ -137,7 +137,7 @@ let () =
   | ["-print-api-cap"] ->
       print_endline (OA.get_capabistring ())
 
-  | ["-map-bbox"; map_bbox] ->
+  | ["-get-bbox"; map_bbox] ->
       proc_map_bbox map_bbox
 
   (*
