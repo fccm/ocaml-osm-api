@@ -60,15 +60,7 @@ let print_relation rel_attrs rel_children =
   print_char '\n'
 
 
-type node = {
-  node_id: string;
-  lat: string;
-  lon: string;
-  tags: string;
-}
-
-
-let print_xml = function
+let print_txt_verbose = function
   | Xml.Element ("osm", osm_attrs, osm_children) ->
       List.iter (function
       | Xml.Element ("node", node_attrs, node_children) ->
@@ -104,38 +96,30 @@ let get_users = function
   | _ ->
       assert false
 
-let _print_xml xml =
+
+let print_txt_usr xml =
   let users = List.rev (get_users xml) in
   List.iter print_endline users
 
 (* =========================== *)
 
-(*
-way > id="5173518"
-    > nd: ref="35968107"
-    > nd: ref="35968108"
-    > nd: ref="35968097"
-    > tag: 'created_by'="JOSM"
-    > tag: 'highway'="unclassified"
-    > tag: 'maxspeed'="50"
-    > tag: 'name'="Rue Albert Camus"
-*)
-let print_way way_attrs way_children =
+let print_way_name way_attrs way_children =
   let way_id = get_attrib way_attrs "id" in
   let xml_tags = List.filter is_tag way_children in
   let tags = List.map map_tag xml_tags in
   let name = List.assoc "name" tags in
   Printf.printf "way: id='%s' name='%s'\n" way_id name
 
-let print_way way_attrs way_children =
-  try print_way way_attrs way_children
+let print_way_name way_attrs way_children =
+  try print_way_name way_attrs way_children
   with Not_found -> ()
 
-let print_xml = function
+
+let print_way_names = function
   | Xml.Element ("osm", osm_attrs, osm_children) ->
       List.iter (function
       | Xml.Element ("way", way_attrs, way_children) ->
-          print_way way_attrs way_children
+          print_way_name way_attrs way_children
       | _ -> ()
       ) osm_children
 
@@ -144,6 +128,64 @@ let print_xml = function
 
 (* =========================== *)
 
+let usage ec =
+  begin
+    if ec = 0
+    then Printf.printf
+    else Printf.eprintf
+  end "\
+  Usage:
+  \ Input:\n\
+  \   -\n\
+  \   --xml-file <filename>\n\
+  \ Output:\n\
+  \   --print-txt-verbose\n\
+  \   --print-way-names\n\
+  \   --print-users\n\
+  "
+  ; exit ec
+
+
+(* =========================== *)
+
 let () =
-  let x = Xml.parse_file Sys.argv.(1) in
-  print_xml x
+  let args = List.tl (Array.to_list Sys.argv) in
+
+  let rec read_args input output = function
+  | [] ->
+      (input, output)
+
+  | "-" :: args ->
+      read_args (`IC stdin) output args
+
+  | "--xml-file" :: filename :: args ->
+      read_args (`Filename filename) output args
+
+  | "--print-txt-verbose" :: args ->
+      read_args input print_txt_verbose args
+
+  | "--print-way-names" :: args ->
+      read_args input print_way_names args
+
+  | "--print-users" :: args ->
+      read_args input print_txt_usr args
+
+  | ["-h"] | ["-help"] | ["--help"] ->
+      usage 0
+
+  | _ ->
+      usage 1
+  in
+  let input, output = read_args `none ignore args in
+
+  let xml =
+    match input with
+    | `Filename filename ->
+        Xml.parse_file filename
+    | `IC stdin ->
+        Xml.parse_in stdin
+    | `none ->
+        usage 1
+  in
+  output xml
+
