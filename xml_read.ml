@@ -49,6 +49,17 @@ let print_way way_attrs way_children =
   print_char '\n'
 
 
+let print_relation rel_attrs rel_children =
+  let rel_id = get_attrib rel_attrs "id" in
+  Printf.printf "rel > id=\"%s\"\n" rel_id;
+  let xml_tags = List.filter is_tag rel_children in
+  let tags = List.map map_tag xml_tags in
+  List.iter (fun (k, v) ->
+    Printf.printf "    > tag: '%s'=\"%s\"\n" k v;
+  ) tags;
+  print_char '\n'
+
+
 type node = {
   node_id: string;
   lat: string;
@@ -60,16 +71,42 @@ type node = {
 let print_xml = function
   | Xml.Element ("osm", osm_attrs, osm_children) ->
       List.iter (function
-      | Xml.Element ("way", way_attrs, way_children) ->
-          print_way way_attrs way_children
       | Xml.Element ("node", node_attrs, node_children) ->
           print_node node_attrs node_children
+      | Xml.Element ("way", way_attrs, way_children) ->
+          print_way way_attrs way_children
+      | Xml.Element ("relation", relat_attrs, relat_children) ->
+          print_relation relat_attrs relat_children
       | _ -> ()
       ) osm_children
 
   | _ ->
       assert false
 
+
+(* =========================== *)
+
+let get_users = function
+  | Xml.Element ("osm", osm_attrs, osm_children) ->
+      List.fold_left (fun acc -> function
+      | Xml.Element ("node", node_attrs, node_children) ->
+          let usr = get_attrib node_attrs "user" in
+          if List.mem usr acc then acc else usr::acc
+      | Xml.Element ("way", way_attrs, way_children) ->
+          let usr = get_attrib way_attrs "user" in
+          if List.mem usr acc then acc else usr::acc
+      | Xml.Element ("relation", relat_attrs, node_children) ->
+          let usr = get_attrib relat_attrs "user" in
+          if List.mem usr acc then acc else usr::acc
+      | _ -> (acc)
+      ) [] osm_children
+
+  | _ ->
+      assert false
+
+let _print_xml xml =
+  let users = List.rev (get_users xml) in
+  List.iter print_endline users
 
 (* =========================== *)
 
