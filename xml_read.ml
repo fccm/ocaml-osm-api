@@ -108,7 +108,7 @@ let print_way_name way_attrs way_children =
   let xml_tags = List.filter is_tag way_children in
   let tags = List.map map_tag xml_tags in
   let name = List.assoc "name" tags in
-  Printf.printf "way: id='%s' name='%s'\n" way_id name
+  Printf.printf "way: id='%s' name=\"%s\"\n" way_id name
 
 let print_way_name way_attrs way_children =
   try print_way_name way_attrs way_children
