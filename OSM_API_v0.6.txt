@@ -519,7 +519,10 @@ Changesets
    Returns the changeset with the given id in OSM-XML format.
 
  <osm>
-   <changeset id="10" user="fred" uid="123" created_at="2008-11-08T19:07:39+01:00" open="true" min_lon="7.0191821" min_lat="49.2785426" max_lon="7.0197485" max_lat="49.2793101">
+   <changeset id="10" user="fred" uid="123"
+        created_at="2008-11-08T19:07:39+01:00" open="true"
+        min_lon="7.0191821" min_lat="49.2785426"
+        max_lon="7.0197485" max_lat="49.2793101">
      <tag k="created_by" v="JOSM 1.61"/>
      <tag k="comment" v="Just adding some streetnames"/>
      ...
@@ -978,7 +981,8 @@ Elements
    XML representing the element, wrapped in an <osm> element:
 
  <osm>
-  <node id="123" lat="..." lon="..." version="142" changeset="12" user="fred" uid="123" visible="true" timestamp="2005-07-30T14:27:12+01:00">
+  <node id="123" lat="..." lon="..." version="142" changeset="12" user="fred"
+      uid="123" visible="true" timestamp="2005-07-30T14:27:12+01:00">
     <tag k="note" v="Just a node"/>
     ...
   </node>
