@@ -1,7 +1,7 @@
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLDOC = ocamldoc
-OCAML_INC = -I wclient -I +xml-light
+OCAML_INC = -I wclient -I xml-light-2.4
 PAGER = less
 
 .PHONY: all opt
