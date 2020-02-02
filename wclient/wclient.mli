@@ -5,7 +5,7 @@
 val client : url:string -> port:int -> request:string -> string
 (** example:
   [client
-    ~url:"linux-nantes.org"
+    ~url:"ocaml.org"
     ~port:80
     ~request:"GET /~fmonnier/ocaml/ HTTP/1.0\r\n\r\n"]
 *)
