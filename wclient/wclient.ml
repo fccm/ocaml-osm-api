@@ -1,34 +1,32 @@
 (* Copyright (C) 2014, Florent Monnier *)
 
-module RU = RedUnix
-
 let write_to fout str =
   let n = String.length str in
-  ignore (RU.write fout str 0 n)
+  ignore (Unix.write fout (Bytes.of_string str) 0 n)
 
 
 let read_form fin =
   let b_size = 1024 * 8 in
   let s_size = 1024 * 8 in
-  let s = String.create s_size in
+  let s = Bytes.create s_size in
   let b = Buffer.create b_size in
   let rec aux () =
-    match RU.read fin s 0 s_size with
+    match Unix.read fin s 0 s_size with
     | 0 -> Buffer.contents b
-    | n -> Buffer.add_substring b s 0 n; aux ()
+    | n -> Buffer.add_subbytes b s 0 n; aux ()
   in
   aux ()
 
 
 let client ~url ~port ~request =
   let server_addr =
-    try (RU.gethostbyname url).RU.h_addr_list.(0)
+    try (Unix.gethostbyname url).Unix.h_addr_list.(0)
     with Not_found ->
       prerr_endline (url ^ ": Host not found");
       exit 2
   in
-  let sock = RU.socket RU.PF_INET RU.SOCK_STREAM 0 in
-  RU.connect sock (RU.ADDR_INET(server_addr, port));
+  let sock = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0 in
+  Unix.connect sock (Unix.ADDR_INET(server_addr, port));
   write_to sock request;
   let ans = read_form sock in
   (ans)
